@@ -28,16 +28,23 @@ export default function ProfilePage() {
   } | null>(null)
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login')
-    } else if (status === 'authenticated' && session?.user) {
-      setFormData((prev) => ({
-        ...prev,
-        name: session.user.name ?? '',
-        email: session.user.email ?? ''
-      }))
-    }
-  }, [status, session, router])
+  if (status === 'unauthenticated') {
+    router.push('/admin/login')
+    return
+  }
+
+  if (status === 'authenticated') {
+    const user = session?.user
+    if (!user) return
+
+    setFormData((prev) => ({
+      ...prev,
+      name: user.name ?? '',
+      email: user.email ?? ''
+    }))
+  }
+}, [status, session, router])
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
