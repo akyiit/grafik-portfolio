@@ -33,8 +33,8 @@ export default function ProfilePage() {
     } else if (status === 'authenticated' && session?.user) {
       setFormData((prev) => ({
         ...prev,
-        name: session.user.name || '',
-        email: session.user.email || ''
+        name: session.user.name ?? '',
+        email: session.user.email ?? ''
       }))
     }
   }, [status, session, router])
