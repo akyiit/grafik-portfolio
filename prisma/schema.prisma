@@ -7,11 +7,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
-  name      String
+  name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -52,20 +54,20 @@ model Contact {
 }
 
 model Settings {
-  id          String   @id @default(cuid())
-  siteName    String
-  siteTitle   String
-  description String
-  about       String
-  phone       String?
-  email       String
-  address     String?
-  linkedin    String?
-  instagram   String?
-  behance     String?
-  dribbble    String?
-  heroTitle   String
+  id           String   @id @default(cuid())
+  siteName     String
+  siteTitle    String
+  description  String
+  about        String
+  phone        String?
+  email        String
+  address      String?
+  linkedin     String?
+  instagram    String?
+  behance      String?
+  dribbble     String?
+  heroTitle    String
   heroSubtitle String
   profileImage String?
-  updatedAt   DateTime @updatedAt
+  updatedAt    DateTime @updatedAt
 }
