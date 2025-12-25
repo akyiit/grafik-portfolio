@@ -16,18 +16,27 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email ve şifre gerekli')
         }
 
+        console.log('🔍 Giriş denemesi:', credentials.email)
+
         const user = await prisma.user.findUnique({
           where: { email: credentials.email }
         })
 
         if (!user) {
+          console.log('❌ Kullanıcı bulunamadı:', credentials.email)
           throw new Error('Kullanıcı bulunamadı')
         }
+
+        console.log('✅ Kullanıcı bulundu:', user.email)
+        console.log('🔑 Girilen şifre:', credentials.password)
+        console.log('🔒 Hash (ilk 20 karakter):', user.password.substring(0, 20))
 
         const isPasswordValid = await bcrypt.compare(
           credentials.password,
           user.password
         )
+
+        console.log('🎯 Şifre geçerli mi?', isPasswordValid)
 
         if (!isPasswordValid) {
           throw new Error('Şifre hatalı')
