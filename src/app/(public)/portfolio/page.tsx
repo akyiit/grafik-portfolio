@@ -36,8 +36,14 @@ export default function PortfolioPage() {
       setProjects(data)
       
       // Kategorileri çıkar
-      const uniqueCategories = ['Tumu', ...new Set(data.map((p: Project) => p.category))]
-      setCategories(uniqueCategories)
+      const uniqueCategories: string[] = [
+  'Tumu',
+  ...Array.from(
+    new Set<string>(data.map((p: Project) => p.category))
+  ),
+]
+
+setCategories(uniqueCategories)
     } catch (error) {
       console.error('Projeler yuklenemedi:', error)
     } finally {
