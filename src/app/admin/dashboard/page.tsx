@@ -24,14 +24,10 @@ export default function AdminDashboard() {
   })
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/admin/login')
+    if (status === 'authenticated') {
+      fetchStats()
     }
-  }, [status, router])
-
-  useEffect(() => {
-    fetchStats()
-  }, [])
+  }, [status])
 
   const fetchStats = async () => {
     try {
