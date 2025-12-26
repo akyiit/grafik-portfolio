@@ -20,6 +20,12 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         })
 
+        console.log('Auth attempt:', { 
+          email: credentials.email, 
+          userFound: !!user,
+          dbUrl: process.env.DATABASE_URL?.substring(0, 30) + '...'
+        })
+
         if (!user) {
           throw new Error('Geçersiz kimlik bilgileri')
         }
