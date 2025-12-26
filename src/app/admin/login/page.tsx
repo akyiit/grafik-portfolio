@@ -1,25 +1,9 @@
 'use client'
 
-import { useState, Suspense } from 'react'
+import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { useSearchParams } from 'next/navigation'
 
 export default function AdminLogin() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-600 to-blue-500">
-        <div className="text-white text-xl">Yükleniyor...</div>
-      </div>
-    }>
-      <LoginForm />
-    </Suspense>
-  )
-}
-
-function LoginForm() {
-  const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') || '/admin/dashboard'
-  
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -30,21 +14,14 @@ function LoginForm() {
     setLoading(true)
     setError('')
 
-    try {
-      const result = await signIn('credentials', {
-        email,
-        password,
-        redirect: false
-      })
+    const result = await signIn('credentials', {
+      email,
+      password,
+      callbackUrl: '/admin/dashboard'
+    })
 
-      if (result?.error) {
-        setError('Email veya şifre hatalı')
-        setLoading(false)
-      } else if (result?.ok) {
-        window.location.replace(callbackUrl)
-      }
-    } catch {
-      setError('Bir hata oluştu')
+    if (result?.error) {
+      setError('Email veya şifre hatalı')
       setLoading(false)
     }
   }

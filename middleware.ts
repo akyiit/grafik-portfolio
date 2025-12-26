@@ -2,28 +2,43 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
-export async function middleware(req: NextRequest) {
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-  const { pathname } = req.nextUrl
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+  
+  // Sadece /admin ile başlayan path'leri kontrol et
+  if (!pathname.startsWith('/admin')) {
+    return NextResponse.next()
+  }
+  
+  const token = await getToken({ 
+    req: request, 
+    secret: process.env.NEXTAUTH_SECRET 
+  })
   
   const isLoginPage = pathname === '/admin/login'
-  const isAdminPage = pathname.startsWith('/admin')
   
-  // Login sayfasında authenticated kullanıcı varsa dashboard'a yönlendir
-  if (isLoginPage && token) {
-    return NextResponse.redirect(new URL('/admin/dashboard', req.url))
+  // Giriş yapmış kullanıcı login sayfasına erişmeye çalışıyorsa
+  if (isLoginPage) {
+    if (token) {
+      // Dashboard'a yönlendir
+      return NextResponse.redirect(new URL('/admin/dashboard', request.url))
+    }
+    // Giriş yapmamış, login sayfasına erişebilir
+    return NextResponse.next()
   }
   
-  // Admin sayfalarında (login hariç) token yoksa login'e yönlendir
-  if (isAdminPage && !isLoginPage && !token) {
-    const loginUrl = new URL('/admin/login', req.url)
-    loginUrl.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(loginUrl)
+  // Diğer admin sayfaları için giriş kontrolü
+  if (!token) {
+    // Login sayfasına yönlendir
+    const url = new URL('/admin/login', request.url)
+    url.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(url)
   }
   
+  // Giriş yapmış, devam et
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: '/admin/:path*'
+  matcher: ['/admin/:path*']
 }

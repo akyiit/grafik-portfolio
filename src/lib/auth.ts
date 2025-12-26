@@ -13,54 +13,80 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email ve şifre gerekli')
+          return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email }
-        })
+        try {
+          const user = await prisma.user.findUnique({
+            where: { email: credentials.email }
+          })
 
-        if (!user) {
-          throw new Error('Geçersiz kimlik bilgileri')
-        }
+          if (!user) {
+            return null
+          }
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password,
-          user.password
-        )
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password,
+            user.password
+          )
 
-        if (!isPasswordValid) {
-          throw new Error('Geçersiz kimlik bilgileri')
-        }
+          if (!isPasswordValid) {
+            return null
+          }
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name
+          }
+        } catch (error) {
+          console.error('Auth error:', error)
+          return null
         }
       }
     })
   ],
   session: {
-    strategy: 'jwt'
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60 // 30 gün
+  },
+  jwt: {
+    maxAge: 30 * 24 * 60 * 60 // 30 gün
   },
   pages: {
-    signIn: '/admin/login',
-    error: '/admin/login'
+    signIn: '/admin/login'
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        token.email = user.email
+        token.name = user.name
       }
       return token
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
+      if (token) {
+        session.user = {
+          id: token.id as string,
+          email: token.email as string,
+          name: token.name as string
+        }
       }
       return session
+    },
+    async redirect({ url, baseUrl }) {
+      // Aynı origin'deki URL'lere izin ver
+      if (url.startsWith(baseUrl)) {
+        return url
+      }
+      // Relative URL'lere izin ver
+      if (url.startsWith('/')) {
+        return `${baseUrl}${url}`
+      }
+      return baseUrl + '/admin/dashboard'
     }
   },
-  secret: process.env.NEXTAUTH_SECRET
+  secret: process.env.NEXTAUTH_SECRET,
+  debug: process.env.NODE_ENV === 'development'
 }
