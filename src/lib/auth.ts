@@ -20,12 +20,6 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email }
         })
 
-        console.log('Auth attempt:', { 
-          email: credentials.email, 
-          userFound: !!user,
-          dbUrl: process.env.DATABASE_URL?.substring(0, 30) + '...'
-        })
-
         if (!user) {
           throw new Error('Geçersiz kimlik bilgileri')
         }
@@ -51,8 +45,8 @@ export const authOptions: NextAuthOptions = {
     strategy: 'jwt'
   },
   pages: {
-    signIn: '/admin',      // ← /admin olarak değişti
-    error: '/admin'        // ← /admin olarak değişti
+    signIn: '/admin/login',
+    error: '/admin/login'
   },
   callbacks: {
     async jwt({ token, user }) {
