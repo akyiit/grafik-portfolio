@@ -1,6 +1,8 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+const resend = process.env.RESEND_API_KEY 
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null
 
 export async function sendContactNotification({
   name,
@@ -14,6 +16,11 @@ export async function sendContactNotification({
   message: string
 }) {
   try {
+    if (!resend) {
+      console.log('RESEND_API_KEY not configured, skipping email')
+      return { success: false, error: 'Email service not configured' }
+    }
+
     const data = await resend.emails.send({
       from: 'Portfolio <onboarding@resend.dev>', // Resend'in test emaili
       to: process.env.NOTIFICATION_EMAIL || 'admin@grafik.com',
