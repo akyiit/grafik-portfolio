@@ -1,36 +1,91 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grafik Portfolio
 
-## Getting Started
+Profesyonel grafik tasarım portfolio sitesi. Next.js, Prisma ve Supabase ile geliştirilmiştir.
 
-First, run the development server:
+## Teknolojiler
+
+- **Framework:** Next.js 16
+- **Database:** PostgreSQL (Supabase)
+- **ORM:** Prisma
+- **Auth:** NextAuth.js
+- **Styling:** TailwindCSS
+- **Animations:** Framer Motion
+
+## Kurulum
+
+### 1. Bağımlılıkları yükle
+
+```bash
+npm install
+```
+
+### 2. Environment Variables
+
+`.env.example` dosyasını `.env` olarak kopyalayın ve değerleri doldurun:
+
+```bash
+cp .env.example .env
+```
+
+Gerekli değişkenler:
+- `DATABASE_URL` - Supabase connection pooling URL
+- `DIRECT_URL` - Supabase direct connection URL
+- `NEXTAUTH_SECRET` - NextAuth secret key
+- `NEXTAUTH_URL` - Site URL (local: http://localhost:3000)
+
+### 3. Veritabanı kurulumu
+
+```bash
+# Migration'ları çalıştır
+npx prisma migrate dev
+
+# Admin kullanıcısı oluştur (opsiyonel)
+npx prisma db seed
+```
+
+### 4. Geliştirme sunucusunu başlat
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) adresinde açılır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Vercel'e Deploy
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 1. Vercel'de yeni proje oluştur
 
-## Learn More
+GitHub repo'nuzu Vercel'e bağlayın.
 
-To learn more about Next.js, take a look at the following resources:
+### 2. Environment Variables ekle
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Vercel dashboard'da şu değişkenleri ekleyin:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Variable | Değer |
+|----------|-------|
+| `DATABASE_URL` | Supabase pooling URL |
+| `DIRECT_URL` | Supabase direct URL |
+| `NEXTAUTH_SECRET` | Güçlü bir secret key |
+| `NEXTAUTH_URL` | https://your-domain.vercel.app |
 
-## Deploy on Vercel
+### 3. Deploy
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Vercel otomatik olarak `vercel-build` script'ini çalıştıracaktır.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Admin Paneli
+
+Admin paneline `/admin` adresinden erişebilirsiniz.
+
+Varsayılan giriş bilgileri (seed çalıştırıldıysa):
+- **Email:** admin@grafik-portfolio.com
+- **Şifre:** .env dosyasındaki ADMIN_PASSWORD değeri
+
+## Scripts
+
+```bash
+npm run dev          # Geliştirme sunucusu
+npm run build        # Production build (local)
+npm run start        # Production sunucusu
+npm run lint         # ESLint
+npm run seed         # Veritabanı seed
+```

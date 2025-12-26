@@ -6,26 +6,32 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Seeding başlıyor...')
 
+  // Environment variable'lardan admin bilgilerini al
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@grafik-portfolio.com'
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123!'
+  const adminName = process.env.ADMIN_NAME || 'Admin'
+
+  if (!adminPassword) {
+    throw new Error('ADMIN_PASSWORD environment variable gerekli!')
+  }
+
   // Admin kullanıcısı oluştur
-  const hashedPassword = await bcrypt.hash('Admin123!', 10)
+  const hashedPassword = await bcrypt.hash(adminPassword, 12)
   
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@grafik-portfolio.com' },
+    where: { email: adminEmail },
     update: {},
     create: {
-      email: 'admin@grafik-portfolio.com',
+      email: adminEmail,
       password: hashedPassword,
-      name: 'Admin User'
+      name: adminName
     }
   })
 
-  console.log('✅ Admin kullanıcısı oluşturuldu:', {
-    email: admin.email,
-    name: admin.name
-  })
+  console.log('✅ Admin kullanıcısı oluşturuldu:', admin.email)
 
   // Site ayarları oluştur (eğer yoksa)
-  const settings = await prisma.settings.upsert({
+  await prisma.settings.upsert({
     where: { id: 'default' },
     update: {},
     create: {
@@ -41,11 +47,8 @@ async function main() {
   })
 
   console.log('✅ Site ayarları oluşturuldu')
+  console.log('🎉 Seeding tamamlandı!')
 
-  console.log('\n🎉 Seeding tamamlandı!')
-  console.log('\n📋 Giriş Bilgileri:')
-  console.log('Email: admin@grafik-portfolio.com')
-  console.log('Şifre: Admin123!')
 }
 
 main()
