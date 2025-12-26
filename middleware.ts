@@ -1,37 +1,28 @@
-import { withAuth } from 'next-auth/middleware'
 import { NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { getToken } from 'next-auth/jwt'
 
-export default withAuth(
-  function middleware(req) {
-    const token = req.nextauth.token
-    const isLoginPage = req.nextUrl.pathname === '/admin/login'
-    
-    // Authenticated kullanıcı login sayfasındaysa dashboard'a yönlendir
-    if (isLoginPage && token) {
-      return NextResponse.redirect(new URL('/admin/dashboard', req.url))
-    }
-    
-    return NextResponse.next()
-  },
-  {
-    callbacks: {
-      authorized: ({ token, req }) => {
-        const isLoginPage = req.nextUrl.pathname === '/admin/login'
-        
-        // Login sayfasına herkes erişebilir
-        if (isLoginPage) {
-          return true
-        }
-        
-        // Diğer admin sayfaları için token gerekli
-        return !!token
-      }
-    },
-    pages: {
-      signIn: '/admin/login'
-    }
+export async function middleware(req: NextRequest) {
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const { pathname } = req.nextUrl
+  
+  const isLoginPage = pathname === '/admin/login'
+  const isAdminPage = pathname.startsWith('/admin')
+  
+  // Login sayfasında authenticated kullanıcı varsa dashboard'a yönlendir
+  if (isLoginPage && token) {
+    return NextResponse.redirect(new URL('/admin/dashboard', req.url))
   }
-)
+  
+  // Admin sayfalarında (login hariç) token yoksa login'e yönlendir
+  if (isAdminPage && !isLoginPage && !token) {
+    const loginUrl = new URL('/admin/login', req.url)
+    loginUrl.searchParams.set('callbackUrl', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+  
+  return NextResponse.next()
+}
 
 export const config = {
   matcher: '/admin/:path*'
